@@ -8,7 +8,7 @@ from meteostat import Point, Hourly
 # ==============================
 # Paramètres
 # ==============================
-growth_rate = 0.08  # +5% sur la prédiction
+growth_rate = 0.08  # +5% global
 
 # ==============================
 # Jours fériés fixes et variables
@@ -62,7 +62,7 @@ def check_jours_feries(date):
 @st.cache_resource
 def load_model(jour):
     try:
-        return joblib.load(f"models/random_forest_{jour}.pkl")
+        return joblib.load(f"model/random_forest_{jour}.pkl")
     except FileNotFoundError:
         st.error(f"Pas de modèle trouvé pour {jour}")
         return None
@@ -121,7 +121,7 @@ st.subheader("🌡️ Températures horaires")
 st.line_chart(df_temps.rename(columns={"Heure":"index"}).set_index("index"))
 
 # ==============================
-# Prédiction consommation pour la date saisie + +5%
+# Prédiction consommation pour la date saisie + ajustement
 # ==============================
 if st.button("⚡ Prédire la consommation"):
     model = load_model(jour)
@@ -145,11 +145,22 @@ if st.button("⚡ Prédire la consommation"):
         X_input = pd.get_dummies(X_input, columns=["Saison de demande","profil_type"], drop_first=True)
         X_input = X_input.reindex(columns=model.feature_names_in_, fill_value=0)
 
+        # Prédictions brutes
         y_pred = model.predict(X_input)
-        y_pred = y_pred * (1 + growth_rate)  # ajouter 5%
 
+        # Appliquer croissance globale
+        y_pred = y_pred * (1 + growth_rate)
+
+        # Réductions ciblées
+        for i, h in enumerate(heures):
+            if h == 17:
+                y_pred[i] *= 0.97  # -4%
+            elif h in [8, 9, 10, 11, 12, 13, 14, 18]:
+                y_pred[i] *= 0.91  # -8%
+
+        # Graphique
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=heures, y=y_pred, mode='lines+markers', name=f"Consommation prédite (+5%)"))
+        fig.add_trace(go.Scatter(x=heures, y=y_pred, mode='lines+markers', name="Consommation ajustée"))
 
         fig.update_layout(
             title=f"Prédiction consommation pour le {date_select} ({jour})",
@@ -159,14 +170,7 @@ if st.button("⚡ Prédire la consommation"):
         )
         st.plotly_chart(fig, use_container_width=True)
 
-        df_result = pd.DataFrame({"Heure": heures, "Température (°C)": st.session_state.temperatures, "Consommation (MW)": y_pred})
+        # Tableau des résultats
+        df_result = pd.DataFrame({"Heure": heures, "Température (°C)": st.session_state.temperatures, "Consommation ajustée": y_pred})
         st.subheader("📊 Tableau des résultats")
         st.dataframe(df_result)
-
-
-
-
-
-
-
-
