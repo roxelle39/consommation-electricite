@@ -8,7 +8,7 @@ from meteostat import Point, Hourly
 # ==============================
 # Paramètres
 # ==============================
-growth_rate = 0.10  # +5% sur la prédiction
+growth_rate = 0.08  # +5% sur la prédiction
 
 # ==============================
 # Jours fériés fixes et variables
