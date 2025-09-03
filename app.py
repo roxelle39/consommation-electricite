@@ -159,7 +159,7 @@ if st.button("⚡ Prédire la consommation"):
         )
         st.plotly_chart(fig, use_container_width=True)
 
-        df_result = pd.DataFrame({"Heure": heures, "Température (°C)": st.session_state.temperatures, "Consommation prédite (+5%)": y_pred})
+        df_result = pd.DataFrame({"Heure": heures, "Température (°C)": st.session_state.temperatures, "Consommation (MW)": y_pred})
         st.subheader("📊 Tableau des résultats")
         st.dataframe(df_result)
 
