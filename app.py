@@ -8,7 +8,29 @@ from meteostat import Point, Hourly
 # ==============================
 # Paramètres
 # ==============================
-growth_rate = 0.08  # +5% global
+growth_rate = 0.08  # +8% global
+
+# ==============================
+# Image de fond personnalisée
+# ==============================
+def add_bg_custom():
+    st.markdown(
+        """
+        <style>
+        .stApp {
+            /* Image de fond + overlay sombre pour lisibilité */
+            background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
+                        url("https://i.pinimg.com/236x/62/21/6a/62216a844dfbbdaad1688d2425a26b19.jpg");
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+add_bg_custom()
 
 # ==============================
 # Jours fériés fixes et variables
