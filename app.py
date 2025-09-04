@@ -18,7 +18,6 @@ def add_bg_custom():
         """
         <style>
         .stApp {
-            /* Image de fond + overlay sombre pour lisibilité */
             background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
                         url("https://i.pinimg.com/236x/62/21/6a/62216a844dfbbdaad1688d2425a26b19.jpg");
             background-attachment: fixed;
@@ -173,12 +172,17 @@ if st.button("⚡ Prédire la consommation"):
         # Appliquer croissance globale
         y_pred = y_pred * (1 + growth_rate)
 
-        # Réductions ciblées
+        # Réductions ciblées et weekend
         for i, h in enumerate(heures):
+            # Réduction pour heures spécifiques
             if h == 17:
-                y_pred[i] *= 0.97  # -4%
+                y_pred[i] *= 0.97  # -3%
             elif h in [8, 9, 10, 11, 12, 13, 14, 18]:
-                y_pred[i] *= 0.91  # -8%
+                y_pred[i] *= 0.92  # -8%
+
+            # Réduction weekend
+            if is_weekend:
+                y_pred[i] *= 0.90  # -10% global le samedi/dimanche
 
         # Graphique
         fig = go.Figure()
@@ -196,3 +200,4 @@ if st.button("⚡ Prédire la consommation"):
         df_result = pd.DataFrame({"Heure": heures, "Température (°C)": st.session_state.temperatures, "Consommation ajustée": y_pred})
         st.subheader("📊 Tableau des résultats")
         st.dataframe(df_result)
+
