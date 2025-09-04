@@ -142,7 +142,7 @@ st.subheader("🌡️ Températures horaires")
 st.line_chart(df_temps.rename(columns={"Heure":"index"}).set_index("index"))
 
 # ==============================
-# Prédiction consommation pour la date saisie + ajustement
+# Prédiction consommation
 # ==============================
 if st.button("⚡ Prédire la consommation"):
     model = load_model(jour)
@@ -172,22 +172,21 @@ if st.button("⚡ Prédire la consommation"):
         # Appliquer croissance globale
         y_pred = y_pred * (1 + growth_rate)
 
-        # Réductions ciblées et weekend
+        # Réduction weekend
+        if is_weekend:
+            for i, h in enumerate(heures):
+                y_pred[i] *= 0.95  # -5% weekend
+
+        # Réductions ciblées par heure
         for i, h in enumerate(heures):
-            # Réduction pour heures spécifiques
             if h == 17:
                 y_pred[i] *= 0.97  # -3%
             elif h in [8, 9, 10, 11, 12, 13, 14, 18]:
                 y_pred[i] *= 0.92  # -8%
 
-            # Réduction weekend
-            if is_weekend:
-                y_pred[i] *= 0.90  # -10% global le samedi/dimanche
-
         # Graphique
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=heures, y=y_pred, mode='lines+markers', name="Consommation ajustée"))
-
         fig.update_layout(
             title=f"Prédiction consommation pour le {date_select} ({jour})",
             xaxis=dict(title="Heure"),
@@ -200,4 +199,3 @@ if st.button("⚡ Prédire la consommation"):
         df_result = pd.DataFrame({"Heure": heures, "Température (°C)": st.session_state.temperatures, "Consommation ajustée": y_pred})
         st.subheader("📊 Tableau des résultats")
         st.dataframe(df_result)
-
