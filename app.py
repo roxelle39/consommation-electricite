@@ -8,7 +8,7 @@ from meteostat import Point, Hourly
 # ==============================
 # Paramètres
 # ==============================
-growth_rate = 0.095  # +8% global
+growth_rate = 0.098  # +8% global
 
 # ==============================
 # Image de fond personnalisée
