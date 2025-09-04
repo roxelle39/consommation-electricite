@@ -178,7 +178,7 @@ if st.button("⚡ Prédire la consommation"):
             if h == 17:
                 y_pred[i] *= 0.97  # -4%
             elif h in [8, 9, 10, 11, 12, 13, 14, 18]:
-                y_pred[i] *= 0.95  # -8%
+                y_pred[i] *= 0.91  # -8%
 
         # Graphique
         fig = go.Figure()
